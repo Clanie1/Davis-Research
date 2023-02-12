@@ -1,5 +1,7 @@
 import zipfile
 import os
+import shutil
+import ResolveMonth as RM
 
 
 arr = os.listdir()
@@ -20,25 +22,38 @@ with zipfile.ZipFile(files[0], "r") as outer_zip:
 
 #update path with obtained year
 PATH += YEAR+"/"
-print(PATH)
+# print(PATH)
 
 #extract months from year zip file
 for i in os.listdir(PATH):
     if i.endswith(".zip"):
-        print(i)
+        # print(i)
         with zipfile.ZipFile(PATH+i, "r") as month_zip:
             month_zip.extractall(i.split(".")[0])
 
 files = [file for file in os.listdir() if file.split(" ")[0].isnumeric() and int(file.split(" ")[0]) <= 12]
 
+def executeResolveMonth(path):
+    with open(path) as file:
+        exec(file.read())
+
 for i in files:
+    if i != "9 Septiembre_2021":
+        continue
     file = os.listdir(i)
+    src_file = "ResolveMonth.py"
     if len(file) == 1:
-        newFile = os.listdir(i+"/"+file[0])
-        print(newFile)
+        innerFiles = os.listdir(i+"/"+file[0])
+
+        for j in innerFiles:
+            if j == "t_501.zip" or j == "t_551_01.zip" or j == "t_551_02.zip" or j == "t_552.zip" or j == "t_554_01.zip" or j == "t_554_02.zip":
+                with zipfile.ZipFile(i+"/"+file[0]+"/"+j, "r") as zip_file:
+                    zip_file.extractall(i+"/"+file[0]+"/")
+
+        RM.resolve(i+"/"+file[0]+"/")
     else:
-        print(file)
-
-# with open("ResolveMonth.py") as file:
-#     exec(file.read())
-
+        for j in file:
+            if j == "t_501.zip" or j == "t_551_01.zip" or j == "t_551_02.zip" or j == "t_552.zip" or j == "t_554_01.zip" or j == "t_554_02.zip":
+                with zipfile.ZipFile(i+"/"+j, "r") as zip_file:
+                    zip_file.extractall(i+"/")
+        RM.resolve(i+"/")
