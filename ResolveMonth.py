@@ -4,7 +4,7 @@ import os
 
 
 
-def txtToCsv(file_name):
+def txtToCsv(file_name, defaultPath = False):
 
     headers_501=['Patente_aduanal', 'Indice', 'Clave_de_seccion_aduanera_de_despacho', 'Clave_de_tipo_de_operacion', 'Clave_de_documento', 'Clave_de_aduana_de_entrada', 
     'Tipo_de_cambio', 'Total_de_fletes', 'Total_de_seguros', 'Total_de_embalajes', 'Total_de_otros_incrementales', 'Total_de_otros_deducibles', 'Peso_bruto_de_la_mercancia', 'Clave_de_medio_de_transporte_de_salida', 'Clave_de_medio_de_transporte_de_arribo', 'Clave_de_medio_de_transporte_de_entrada_o_salida', 'Clave_de_destino_de_la_mercancia', 'Clave_de_tipo_de_pedimento', 'Fecha_de_pago_real']
@@ -26,11 +26,19 @@ def txtToCsv(file_name):
         headers = headers_554
     elif file == "t_552":
         headers = headers_552
-    print(headers)
-    pd.read_csv(file_name+".txt", sep="|", header=None, names=headers+["NUL"], encoding='latin1', on_bad_lines='skip', engine='python') \
+    skip_rows = [5936210, 5936211, 5936212]
+    finalPath = ""
+    if defaultPath:
+        print("#########################")
+        finalPath = "".join(file_name.split("/")[:-1])+"/t_554.csv"
+        print(finalPath)
+        # finalPath = "t_554.csv"
+    else:
+        finalPath = file_name+".csv"
+    pd.read_csv(file_name+".txt", sep="|", header=None, names=headers+["NUL"], encoding='latin1', skiprows=skip_rows) \
         .drop("NUL", axis=1) \
-        .to_csv(file_name+".csv", index=False)
-    return file_name+".csv"
+        .to_csv(finalPath, index=False)
+    return finalPath
 
 
 def joinFiles(file1, file2, name):
@@ -113,9 +121,13 @@ def resolve(path):
     current = merge(path+"t_501.csv", path+"t_551.csv", path+"clean.csv")
 
     # #Process 554
-    file1 = txtToCsv(path+ "t_554_01")
-    file2 = txtToCsv(path+"t_554_02")
-    joinFiles(file1, file2, path+"t_554")
+    print(os.path.exists(path+"t_554_02"), path+"t_554_02")
+    if os.path.exists(path+"t_554_02.txt"):
+        file1 = txtToCsv(path+ "t_554_01", defaultPath=False)
+        file2 = txtToCsv(path+"t_554_02")
+        joinFiles(file1, file2, path+"/t_554")
+    else:
+        file1 = txtToCsv(path+ "t_554_01", defaultPath=True)
     filter_554(path)
     merge(path+"t_554.csv", current, path+"t_501-551-554.csv")
 

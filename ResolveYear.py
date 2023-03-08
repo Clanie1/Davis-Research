@@ -31,15 +31,13 @@ for i in os.listdir(PATH):
         with zipfile.ZipFile(PATH+i, "r") as month_zip:
             month_zip.extractall(i.split(".")[0])
 
-files = [file for file in os.listdir() if file.split(" ")[0].isnumeric() and int(file.split(" ")[0]) <= 12]
+files = [file for file in os.listdir() if file.split(".")[0].isnumeric() and int(file.split(".")[0]) <= 12]
 
 def executeResolveMonth(path):
     with open(path) as file:
         exec(file.read())
 
 for i in files:
-    if i != "9 Septiembre_2021":
-        continue
     file = os.listdir(i)
     src_file = "ResolveMonth.py"
     if len(file) == 1:
